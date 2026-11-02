@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>认知能力测试 - 反应力篇</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        body {
+            background-color: #0f141d;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 手机端全屏自适应容器 */
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+            height: 100vh;
+            background-color: #161b22;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .screen {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #58a6ff;
+            margin-bottom: 8px;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        p.subtitle {
+            font-size: 13px;
+            color: #8b949e;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .form-group {
+            width: 100%;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            color: #c9d1d9;
+            margin-bottom: 8px;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: #238636;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 12px;
+            box-shadow: 0 4px 12px rgba(35, 134, 54, 0.4);
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: #1f6feb;
+            box-shadow: 0 4px 12px rgba(31, 111, 235, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            box-shadow: none;
+        }
+
+        /* 游戏界面上下分栏布局 */
+        #game-screen {
+            justify-content: flex-start;
+            padding-top: 10px;
+        }
+
+        /* 上半部分：游戏画布视窗 */
+        .canvas-container {
+            width: 100%;
+            height: 40vh;
+            max-height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            border: 3px solid #30363d;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 0 15px rgba(255,255,255,0.05);
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background-color: #000;
+        }
+
+        /* 下半部分：操控区 */
+        .controls-area {
+            width: 100%;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+            position: relative;
+        }
+
+        .joystick-base {
+            width: 160px;
+            height: 160px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid rgba(88, 166, 255, 0.35);
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            touch-action: none;
+        }
+
+        .joystick-stick {
+            width: 65px;
+            height: 65px;
+            background: #58a6ff;
+            border-radius: 50%;
+            position: absolute;
+            box-shadow: 0 0 18px rgba(88, 166, 255, 0.6);
+            transition: transform 0.05s ease-out;
+        }
+
+        .results-box {
+            background: #21262d;
+            border-radius: 8px;
+            padding: 16px;
+            width: 100%;
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .results-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .rating-tag {
+            font-size: 22px;
+            font-weight: bold;
+            color: #79c0ff;
+            text-align: center;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <!-- 界面 0：人口学信息输入与开始菜单 -->
+    <div id="start-screen" class="screen">
+        <h1>REFLEX TEST</h1>
+        <p class="subtitle">脑部健康认知能力评估（反应力）</p>
+
+        <div class="form-group">
+            <label for="age-group">年龄组别 (Age Group):</label>
+            <select id="age-group">
+                <option value="Under 18">18 岁以下</option>
+                <option value="18-25" selected>18 - 25 岁</option>
+                <option value="26-35">26 - 35 岁</option>
+                <option value="36-50">36 - 50 岁</option>
+                <option value="51-65">51 - 65 岁</option>
+                <option value="Over 65">65 岁以上</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="gender">性别 (Gender):</label>
+            <select id="gender">
+                <option value="Male">男 (Male)</option>
+                <option value="Female">女 (Female)</option>
+                <option value="Other">其他 (Other)</option>
+                <option value="Prefer not to say">不愿透露</option>
+            </select>
+        </div>
+
+        <div style="font-size: 12px; color: #8b949e; margin: 12px 0; text-align: left; line-height: 1.5;">
+            💡 <b>玩法说明：</b><br>
+            • 捕捉星星后方块短暂变绿并延迟 0.2 秒刷新。<br>
+            • 每局限时 30 秒，系统将自动测算您的反应时。
+        </div>
+
+        <button class="btn" id="start-btn">开始测试 (START)</button>
+    </div>
+
+    <!-- 界面 1：游戏进行中 -->
+    <div id="game-screen" class="screen hidden">
+        <div class="canvas-container">
+            <canvas id="oled" width="256" height="128"></canvas>
+        </div>
+
+        <div class="controls-area" id="controls-area">
+            <div class="joystick-base" id="joystick-base">
+                <div class="joystick-stick" id="joystick-stick"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 界面 2：测试结束结算与导出 -->
+    <div id="gameover-screen" class="screen hidden">
+        <h1>TEST COMPLETED</h1>
+        <p class="subtitle">测试完成！你的认知表现数据如下：</p>
+
+        <div class="results-box">
+            <div class="results-item"><span>最终得分 (Score):</span><strong id="res-score">0</strong></div>
+            <div class="results-item"><span>平均反应时 (Avg Reflex):</span><strong id="res-reflex">0 ms</strong></div>
+            <div class="results-item"><span>收集试次 (Trials):</span><strong id="res-count">0</strong></div>
+            <div class="rating-tag" id="res-rating">RATING: N/A</div>
+        </div>
+
+        <button class="btn btn-secondary" id="export-btn">📥 导出 CSV 测试数据</button>
+        <button class="btn btn-outline" id="restart-btn">返回主菜单</button>
+    </div>
+
+</div>
+
+<script>
+    const SCREEN_WIDTH = 256;
+    const SCREEN_HEIGHT = 128;
+    const PLAYER_SIZE = 24; 
+    const STAR_SIZE = 8;
+    const GAME_DURATION = 30; 
+    const MAX_SPEED = 1.2;
+
+    let playerX = SCREEN_WIDTH / 2 - PLAYER_SIZE / 2;
+    let playerY = SCREEN_HEIGHT / 2 - PLAYER_SIZE / 2;
+    let starX = 0, starY = 0;
+
+    let score = 0;
+    let startTime = 0;
+    let sessionTimestamp = ""; 
+    let gameState = 0; 
+
+    let starSpawnTime = 0;
+    let trackingReaction = false;
+    let isWaitingForNextStar = false; // 捕捉星星后的 0.2 秒延迟锁
+    let lastMoveX = 1.0, lastMoveY = 0.0;
+
+    let reactionTimes = [];
+    let avgReactionTime = 0;
+
+    let userData = { age: '', gender: '' };
+    let joystickInput = { x: 0, y: 0 };
+
+    const canvas = document.getElementById('oled');
+    const ctx = canvas.getContext('2d');
+    const startScreen = document.getElementById('start-screen');
+    const gameScreen = document.getElementById('game-screen');
+    const gameoverScreen = document.getElementById('gameover-screen');
+
+    // 虚拟摇杆操控与超大容错逻辑
+    const controlsArea = document.getElementById('controls-area');
+    const joyBase = document.getElementById('joystick-base');
+    const joyStick = document.getElementById('joystick-stick');
+    let joyActive = false;
+    let joyCenterX = 0, joyCenterY = 0;
+    
+    const maxRadius = 55;   
+    const hitRadius = 150;  
+
+    function updateJoyCenter() {
+        const rect = joyBase.getBoundingClientRect();
+        joyCenterX = rect.left + rect.width / 2;
+        joyCenterY = rect.top + rect.height / 2;
+    }
+
+    function handleMove(clientX, clientY) {
+        updateJoyCenter();
+        let dx = clientX - joyCenterX;
+        let dy = clientY - joyCenterY;
+        let dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist > hitRadius) {
+            handleJoyEnd();
+            return;
+        }
+
+        joyActive = true;
+
+        let visualDx = dx;
+        let visualDy = dy;
+        if (dist > maxRadius) {
+            visualDx = (dx / dist) * maxRadius;
+            visualDy = (dy / dist) * maxRadius;
+        }
+
+        const deadzone = 5; 
+        if (dist < deadzone) {
+            joystickInput.x = 0;
+            joystickInput.y = 0;
+            joyStick.style.transform = `translate(0px, 0px)`;
+            return;
+        }
+
+        joyStick.style.transform = `translate(${visualDx}px, ${visualDy}px)`;
+
+        joystickInput.x = dx / maxRadius;
+        joystickInput.y = dy / maxRadius;
+        
+        let inputDist = Math.sqrt(joystickInput.x * joystickInput.x + joystickInput.y * joystickInput.y);
+        if (inputDist > 1.0) {
+            joystickInput.x /= inputDist;
+            joystickInput.y /= inputDist;
+        }
+    }
+
+    function handleJoyEnd() {
+        joyActive = false;
+        joyStick.style.transform = `translate(0px, 0px)`;
+        joystickInput.x = 0;
+        joystickInput.y = 0;
+    }
+
+    controlsArea.addEventListener('mousemove', (e) => {
+        handleMove(e.clientX, e.clientY);
+    });
+    controlsArea.addEventListener('mouseleave', () => {
+        handleJoyEnd();
+    });
+
+    controlsArea.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        handleMove(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: false });
+
+    window.addEventListener('touchmove', (e) => {
+        if (joyActive && e.touches.length > 0) {
+            handleMove(e.touches[0].clientX, e.touches[0].clientY);
+        }
+    }, { passive: false });
+
+    window.addEventListener('touchend', () => {
+        if (joyActive) handleJoyEnd();
+    });
+
+    function generateCounterStar() {
+        let baseStarX = Math.floor(Math.random() * (SCREEN_WIDTH - STAR_SIZE - 8)) + 4;
+        let baseStarY = Math.floor(Math.random() * (SCREEN_HEIGHT - STAR_SIZE - 28)) + 22;
+
+        let randomChance = Math.floor(Math.random() * 100);
+
+        if (randomChance >= 80) { 
+            let moveLen = Math.sqrt(lastMoveX * lastMoveX + lastMoveY * lastMoveY);
+            let dirX = (moveLen > 0) ? (lastMoveX / moveLen) : 1.0;
+            let dirY = (moveLen > 0) ? (lastMoveY / moveLen) : 0.0;
+
+            let vectorToStarX = baseStarX - playerX;
+            let vectorToStarY = baseStarY - playerY;
+
+            let dot = vectorToStarX * dirX + vectorToStarY * dirY;
+
+            if (dot > 0) {
+                starX = playerX - vectorToStarX;
+                starY = playerY - vectorToStarY;
+            } else {
+                starX = baseStarX;
+                starY = baseStarY;
+            }
+        } else {
+            starX = baseStarX;
+            starY = baseStarY;
+        }
+
+        if (starX < 4) starX = 4;
+        if (starX > SCREEN_WIDTH - STAR_SIZE - 4) starX = SCREEN_WIDTH - STAR_SIZE - 4;
+        if (starY < 24) starY = 24;
+        if (starY > SCREEN_HEIGHT - STAR_SIZE - 4) starY = SCREEN_HEIGHT - STAR_SIZE - 4;
+
+        starSpawnTime = Date.now();
+        trackingReaction = true;
+    }
+
+    function resetGame() {
+        playerX = SCREEN_WIDTH / 2 - PLAYER_SIZE / 2;
+        playerY = SCREEN_HEIGHT / 2 - PLAYER_SIZE / 2;
+        score = 0;
+        reactionTimes = [];
+        avgReactionTime = 0;
+        lastMoveX = 1.0;
+        lastMoveY = 0.0;
+        trackingReaction = false;
+        isWaitingForNextStar = false;
+        sessionTimestamp = new Date().toISOString(); 
+        generateCounterStar();
+        startTime = Date.now();
+    }
+
+    function gameLoop() {
+        if (gameState !== 1) return;
+
+        let elapsed = (Date.now() - startTime) / 1000;
+        let remainingTime = Math.max(0, Math.ceil(GAME_DURATION - elapsed));
+
+        if (remainingTime <= 0) {
+            if (reactionTimes.length > 0) {
+                let sum = reactionTimes.reduce((a, b) => a + b, 0);
+                avgReactionTime = Math.round(sum / reactionTimes.length);
+            }
+            endGame();
+            return;
+        }
+
+        let currentMoveX = joystickInput.x * MAX_SPEED;
+        let currentMoveY = joystickInput.y * MAX_SPEED;
+
+        playerX += currentMoveX;
+        playerY += currentMoveY;
+
+        if (trackingReaction && (Math.abs(currentMoveX) > 0.1 || Math.abs(currentMoveY) > 0.1)) {
+            let targetDx = (starX + STAR_SIZE / 2.0) - (playerX + PLAYER_SIZE / 2.0);
+            let targetDy = (starY + STAR_SIZE / 2.0) - (playerY + PLAYER_SIZE / 2.0);
+
+            let dotProduct = currentMoveX * targetDx + currentMoveY * targetDy;
+
+            if (dotProduct > 0.1) {
+                let reactionTime = Date.now() - starSpawnTime;
+                if (reactionTime > 80 && reactionTimes.length < 50) {
+                    reactionTimes.push(reactionTime);
+                }
+                trackingReaction = false;
+            }
+        }
+
+        // 边界限制
+        if (playerX < 0) playerX = 0;
+        if (playerX > SCREEN_WIDTH - PLAYER_SIZE) playerX = SCREEN_WIDTH - PLAYER_SIZE;
+        if (playerY < 20) playerY = 20; 
+        if (playerY > SCREEN_HEIGHT - PLAYER_SIZE) playerY = SCREEN_HEIGHT - PLAYER_SIZE;
+
+        // 碰撞检测
+        if (!isWaitingForNextStar &&
+            playerX + 6 < starX + STAR_SIZE &&
+            playerX + PLAYER_SIZE - 6 > starX &&
+            playerY + 6 < starY + STAR_SIZE &&
+            playerY + PLAYER_SIZE - 6 > starY) {
+            score++;
+            if (Math.abs(currentMoveX) > 0.1 || Math.abs(currentMoveY) > 0.1) {
+                lastMoveX = currentMoveX;
+                lastMoveY = currentMoveY;
+            }
+            
+            // 触发 0.2 秒延迟刷新特效：方块变为绿色，星星原地保留，方块可自由移动
+            isWaitingForNextStar = true;
+            setTimeout(() => {
+                if (gameState === 1) {
+                    generateCounterStar();
+                    isWaitingForNextStar = false;
+                }
+            }, 200); 
+        }
+
+        render(remainingTime);
+        requestAnimationFrame(gameLoop);
+    }
+
+    function render(remainingTime) {
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+        // 玩家方块：如果在 0.2 秒延迟等待期内则显示绿色（#238636），否则显示白色（#FFFFFF）
+        ctx.strokeStyle = isWaitingForNextStar ? "#238636" : "#FFFFFF";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(Math.floor(playerX), Math.floor(playerY), PLAYER_SIZE, PLAYER_SIZE);
+
+        // 星星 (实心)
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(Math.floor(starX), Math.floor(starY), STAR_SIZE, STAR_SIZE);
+
+        // 顶部 UI 栏
+        ctx.font = "14px monospace";
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillText(`Score: ${score}`, 8, 16);
+        ctx.fillText(`Time: ${remainingTime}s`, 175, 16);
+        
+        ctx.strokeStyle = "#30363d";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, 20);
+        ctx.lineTo(SCREEN_WIDTH, 20);
+        ctx.stroke();
+    }
+
+    document.getElementById('start-btn').addEventListener('click', () => {
+        userData.age = document.getElementById('age-group').value;
+        userData.gender = document.getElementById('gender').value;
+
+        startScreen.classList.add('hidden');
+        gameScreen.classList.remove('hidden');
+
+        gameState = 1;
+        resetGame();
+        requestAnimationFrame(gameLoop);
+    });
+
+    function endGame() {
+        gameState = 2;
+        gameScreen.classList.add('hidden');
+        gameoverScreen.classList.remove('hidden');
+
+        document.getElementById('res-score').innerText = score;
+        document.getElementById('res-reflex').innerText = reactionTimes.length > 0 ? `${avgReactionTime} ms` : 'N/A';
+        document.getElementById('res-count').innerText = reactionTimes.length;
+
+        let rating = "N/A";
+        if (reactionTimes.length > 0) {
+            if (avgReactionTime < 400) rating = "GOD! (电竞级)";
+            else if (avgReactionTime < 800) rating = "FAST (敏捷)";
+            else if (avgReactionTime < 1200) rating = "NORM (正常)";
+            else rating = "SLOW (偏慢)";
+        }
+        document.getElementById('res-rating').innerText = `RATING: ${rating}`;
+    }
+
+    document.getElementById('restart-btn').addEventListener('click', () => {
+        gameoverScreen.classList.add('hidden');
+        startScreen.classList.remove('hidden');
+        gameState = 0;
+    });
+
+    // 导出单行汇总的 CSV 数据
+    document.getElementById('export-btn').addEventListener('click', () => {
+        let ratingStr = "N/A";
+        let avgTimeStr = "N/A";
+
+        if (reactionTimes.length > 0) {
+            avgTimeStr = avgReactionTime;
+            if (avgReactionTime < 400) ratingStr = "GOD";
+            else if (avgReactionTime < 800) ratingStr = "FAST";
+            else if (avgReactionTime < 1200) ratingStr = "NORM";
+            else ratingStr = "SLOW";
+        }
+
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Timestamp,Age_Group,Gender,Final_Score,Avg_Reaction_Time_ms,Rating\n";
+        csvContent += `${sessionTimestamp},${userData.age},${userData.gender},${score},${avgTimeStr},${ratingStr}\n`;
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `Reflex_Test_Session_${userData.age}_${Date.now()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+</script>
+</body>
+</html>
