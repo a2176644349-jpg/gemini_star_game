@@ -591,9 +591,9 @@
 
         let rating = "测试数据不足";
         if (reactionTimes.length >= 3) {
-            if (avgReactionTime < 400) rating = "GOD! (电竞级)";
-            else if (avgReactionTime < 800) rating = "FAST (敏捷)";
-            else if (avgReactionTime < 1200) rating = "NORM (正常)";
+            if (avgReactionTime < 200) rating = "GOD! (电竞级)";
+            else if (avgReactionTime < 400) rating = "FAST (敏捷)";
+            else if (avgReactionTime < 800) rating = "NORM (正常)";
             else rating = "SLOW (偏慢)";
         }
         document.getElementById('res-rating').innerText = `RATING: ${rating}`;
