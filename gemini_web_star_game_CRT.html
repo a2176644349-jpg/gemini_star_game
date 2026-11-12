@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>认知能力测试 - 反应力与MCI筛查评估</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        body {
+            background-color: #0f141d;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 540px;
+            height: 100vh;
+            max-height: 900px;
+            background-color: #161b22;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        @media (min-width: 550px) {
+            .app-container {
+                border-radius: 16px;
+                border: 1px solid #30363d;
+                height: 92vh;
+            }
+        }
+
+        .screen {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #58a6ff;
+            margin-bottom: 8px;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        p.subtitle {
+            font-size: 13px;
+            color: #8b949e;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .form-group {
+            width: 100%;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            color: #c9d1d9;
+            margin-bottom: 8px;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: #238636;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(35, 134, 54, 0.4);
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: #1f6feb;
+            box-shadow: 0 4px 12px rgba(31, 111, 235, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            box-shadow: none;
+        }
+
+        .btn-warning {
+            background: #8957e5;
+            box-shadow: 0 4px 12px rgba(137, 87, 229, 0.4);
+        }
+
+        #game-screen {
+            justify-content: space-between;
+            padding: 10px 0;
+        }
+
+        .canvas-container {
+            width: 100%;
+            height: 48vh; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            border: 3px solid #30363d;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 0 15px rgba(255,255,255,0.05);
+            position: relative;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background-color: #000;
+        }
+
+        .controls-area {
+            width: 100%;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .joystick-base {
+            width: 140px;
+            height: 140px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid rgba(88, 166, 255, 0.35);
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            touch-action: none;
+        }
+
+        .joystick-stick {
+            width: 55px;
+            height: 55px;
+            background: #58a6ff;
+            border-radius: 50%;
+            position: absolute;
+            box-shadow: 0 0 18px rgba(88, 166, 255, 0.6);
+            transition: transform 0.05s ease-out;
+        }
+
+        .practice-bottom-bar {
+            width: 100%;
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px;
+        }
+
+        .results-box {
+            background: #21262d;
+            border-radius: 8px;
+            padding: 16px;
+            width: 100%;
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .results-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .rating-tag {
+            font-size: 19px;
+            font-weight: bold;
+            color: #79c0ff;
+            text-align: center;
+            margin-top: 14px;
+            padding-top: 10px;
+            border-top: 1px solid #30363d;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <!-- 界面 0：人口学信息输入与主菜单 -->
+    <div id="start-screen" class="screen">
+        <h1>REFLEX & CRT TEST</h1>
+        <p class="subtitle">脑部健康认知能力评估（选择反应时与运动执行）</p>
+
+        <div class="form-group">
+            <label for="age-group">年龄组别 (Age Group):</label>
+            <select id="age-group">
+                <option value="Under 18">18 岁以下</option>
+                <option value="18-25" selected>18 - 25 岁</option>
+                <option value="26-35">26 - 35 岁</option>
+                <option value="36-50">36 - 50 岁</option>
+                <option value="51-65">51 - 65 岁</option>
+                <option value="Over 65">65 岁以上</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="gender">性别 (Gender):</label>
+            <select id="gender">
+                <option value="Male">男 (Male)</option>
+                <option value="Female">女 (Female)</option>
+                <option value="Other">其他 (Other)</option>
+                <option value="Prefer not to say">不愿透露</option>
+            </select>
+        </div>
+
+        <div style="font-size: 12px; color: #8b949e; margin: 8px 0; text-align: left; line-height: 1.4;">
+            💡 <b>测试说明：</b>正式测试限时 30 秒，含 2 秒未启动动作为漏報（Omission）。<br>
+            初次使用建议先点下方按钮熟悉操作。
+        </div>
+
+        <button class="btn" id="start-btn">开始测试 (START)</button>
+        <button class="btn btn-warning" id="practice-btn">练习一下 (PRACTICE)</button>
+    </div>
+
+    <!-- 界面 1：游戏/练习进行中 -->
+    <div id="game-screen" class="screen hidden">
+        <div class="canvas-container">
+            <canvas id="oled"></canvas>
+        </div>
+
+        <div class="controls-area" id="controls-area">
+            <div class="joystick-base" id="joystick-base">
+                <div class="joystick-stick" id="joystick-stick"></div>
+            </div>
+        </div>
+
+        <div id="practice-controls" class="practice-bottom-bar hidden">
+            <span style="font-size: 13px; color: #d2a8ff; font-weight: bold;">🎯 练习模式（不限时/不计分）</span>
+            <button class="btn btn-outline" id="exit-practice-btn" style="width: auto; padding: 6px 12px; margin: 0; font-size: 13px;">结束练习并返回</button>
+        </div>
+    </div>
+
+    <!-- 界面 2：测试结束结算与导出 -->
+    <div id="gameover-screen" class="screen hidden">
+        <h1>TEST COMPLETED</h1>
+        <p class="subtitle">测试完成！认知与运动生物标志物分析：</p>
+
+        <div class="results-box">
+            <div class="results-item"><span>最终得分 (Score):</span><strong id="res-score">0</strong></div>
+            <div class="results-item"><span>有效试次 (Valid Trials):</span><strong id="res-count">0</strong></div>
+            <div class="results-item"><span>漏报次数 (Omissions > 2s):</span><strong id="res-omissions" style="color: #ff7b72;">0</strong></div>
+            <div class="results-item"><span>平均决策反应时 (Mean CRT):</span><strong id="res-reflex">N/A</strong></div>
+            <div class="results-item"><span>反应时变异性 (SD / CV):</span><strong id="res-variability">N/A</strong></div>
+            <div class="results-item"><span>平均运动执行期 (Exec Time):</span><strong id="res-exec">N/A</strong></div>
+            <div class="rating-tag" id="res-rating">RATING: 测试数据不足</div>
+        </div>
+
+        <button class="btn btn-secondary" id="export-btn">📥 导出完整 MCI 研究数据 (CSV)</button>
+        <button class="btn btn-outline" id="restart-btn">返回主菜单</button>
+    </div>
+
+</div>
+
+<script>
+    const LOGICAL_WIDTH = 300; 
+    let LOGICAL_HEIGHT = 150;  
+
+    const PLAYER_SIZE = 24; 
+    const STAR_SIZE = 8;
+    const GAME_DURATION = 30; 
+    const MAX_SPEED = 1.5;     
+    const COS_THRESHOLD = 0.85; 
+    const OMISSION_TIMEOUT_MS = 2000; // T0 到 T1 超時門檻：2000ms (2秒未啟動)
+
+    let playerX = 138;
+    let playerY = 75;
+    let starX = -100, starY = -100;
+    let starVisible = false;       
+
+    let score = 0;
+    let omissionCount = 0; 
+    let startTime = 0;
+    let sessionTimestamp = ""; 
+    let gameState = 0; // 0: Start, 1: Official Game, 2: Practice, 3: GameOver
+
+    let isWaitingForNextStar = false; 
+    let lastMoveX = 1.0, lastMoveY = 0.0;
+
+    let currentTrial = null;
+    let alignedFrameCount = 0; 
+    let trialRecords = [];     
+
+    let stats = {
+        validCount: 0,
+        omissionErrors: 0,
+        meanDecisionRT: 0,
+        sdDecisionRT: 0,
+        cvDecisionRT: 0,
+        meanExecTime: 0,
+        meanNormSpeed: 0
+    };
+
+    let userData = { age: '', gender: '' };
+    let joystickInput = { x: 0, y: 0 };
+
+    const canvas = document.getElementById('oled');
+    const ctx = canvas.getContext('2d');
+    const container = document.querySelector('.canvas-container');
+    const startScreen = document.getElementById('start-screen');
+    const gameScreen = document.getElementById('game-screen');
+    const gameoverScreen = document.getElementById('gameover-screen');
+    const practiceControls = document.getElementById('practice-controls');
+
+    function resizeCanvas() {
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+
+    const controlsArea = document.getElementById('controls-area');
+    const joyBase = document.getElementById('joystick-base');
+    const joyStick = document.getElementById('joystick-stick');
+    let joyActive = false;
+    let joyCenterX = 0, joyCenterY = 0;
+    
+    const maxRadius = 55;   
+    const hitRadius = 150;  
+
+    function updateJoyCenter() {
+        const rect = joyBase.getBoundingClientRect();
+        joyCenterX = rect.left + rect.width / 2;
+        joyCenterY = rect.top + rect.height / 2;
+    }
+
+    function handleMove(clientX, clientY) {
+        updateJoyCenter();
+        let dx = clientX - joyCenterX;
+        let dy = clientY - joyCenterY;
+        let dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist > hitRadius) {
+            handleJoyEnd();
+            return;
+        }
+
+        joyActive = true;
+
+        let visualDx = dx;
+        let visualDy = dy;
+        if (dist > maxRadius) {
+            visualDx = (dx / dist) * maxRadius;
+            visualDy = (dy / dist) * maxRadius;
+        }
+
+        const deadzone = 5; 
+        if (dist < deadzone) {
+            joystickInput.x = 0;
+            joystickInput.y = 0;
+            joyStick.style.transform = `translate(0px, 0px)`;
+            return;
+        }
+
+        joyStick.style.transform = `translate(${visualDx}px, ${visualDy}px)`;
+
+        joystickInput.x = dx / maxRadius;
+        joystickInput.y = dy / maxRadius;
+        
+        let inputDist = Math.sqrt(joystickInput.x * joystickInput.x + joystickInput.y * joystickInput.y);
+        if (inputDist > 1.0) {
+            joystickInput.x /= inputDist;
+            joystickInput.y /= inputDist;
+        }
+    }
+
+    function handleJoyEnd() {
+        joyActive = false;
+        joyStick.style.transform = `translate(0px, 0px)`;
+        joystickInput.x = 0;
+        joystickInput.y = 0;
+    }
+
+    controlsArea.addEventListener('mousemove', (e) => {
+        handleMove(e.clientX, e.clientY);
+    });
+    controlsArea.addEventListener('mouseleave', () => {
+        handleJoyEnd();
+    });
+
+    controlsArea.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        handleMove(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: false });
+
+    window.addEventListener('touchmove', (e) => {
+        if (joyActive && e.touches.length > 0) {
+            handleMove(e.touches[0].clientX, e.touches[0].clientY);
+        }
+    }, { passive: false });
+
+    window.addEventListener('touchend', () => {
+        if (joyActive) handleJoyEnd();
+    });
+
+    function generateTargetStar() {
+        let moveLen = Math.sqrt(lastMoveX * lastMoveX + lastMoveY * lastMoveY);
+        let dirX = (moveLen > 0) ? (lastMoveX / moveLen) : 1.0;
+        let dirY = (moveLen > 0) ? (lastMoveY / moveLen) : 0.0;
+
+        let pCenterX = playerX + PLAYER_SIZE / 2;
+        let pCenterY = playerY + PLAYER_SIZE / 2;
+
+        let bestStarX = 0, bestStarY = 0;
+        let validFound = false;
+
+        for (let attempt = 0; attempt < 25; attempt++) {
+            let candX = Math.floor(Math.random() * (LOGICAL_WIDTH - STAR_SIZE - 12)) + 6;
+            let candY = Math.floor(Math.random() * (LOGICAL_HEIGHT - STAR_SIZE - 28)) + 24;
+
+            let sCenterX = candX + STAR_SIZE / 2;
+            let sCenterY = candY + STAR_SIZE / 2;
+
+            let vx = sCenterX - pCenterX;
+            let vy = sCenterY - pCenterY;
+            let dist = Math.sqrt(vx * vx + vy * vy);
+
+            if (dist < 45) continue;
+
+            let cosAngle = (vx * dirX + vy * dirY) / dist;
+            if (cosAngle < 0.707) {
+                bestStarX = candX;
+                bestStarY = candY;
+                validFound = true;
+                break;
+            }
+        }
+
+        if (!validFound) {
+            bestStarX = LOGICAL_WIDTH - playerX - PLAYER_SIZE;
+            bestStarY = LOGICAL_HEIGHT - playerY - PLAYER_SIZE + 18;
+            if (bestStarX < 6) bestStarX = 6;
+            if (bestStarX > LOGICAL_WIDTH - STAR_SIZE - 6) bestStarX = LOGICAL_WIDTH - STAR_SIZE - 6;
+            if (bestStarY < 24) bestStarY = 24;
+            if (bestStarY > LOGICAL_HEIGHT - STAR_SIZE - 6) bestStarY = LOGICAL_HEIGHT - STAR_SIZE - 6;
+        }
+
+        starX = bestStarX;
+        starY = bestStarY;
+        starVisible = true; 
+
+        let finalSCenterX = starX + STAR_SIZE / 2;
+        let finalSCenterY = starY + STAR_SIZE / 2;
+        let d0 = Math.sqrt(Math.pow(finalSCenterX - pCenterX, 2) + Math.pow(finalSCenterY - pCenterY, 2));
+
+        let now = performance.now();
+        alignedFrameCount = 0;
+
+        currentTrial = {
+            trialIndex: trialRecords.length + 1,
+            T0: now,          
+            T1: null,         
+            T2: null,         
+            T3: null,         
+            D0: parseFloat(d0.toFixed(2)),
+            status: "Normal" 
+        };
+    }
+
+    function initGame(mode) {
+        resizeCanvas();
+        LOGICAL_HEIGHT = LOGICAL_WIDTH * (canvas.height / canvas.width);
+
+        playerX = LOGICAL_WIDTH / 2 - PLAYER_SIZE / 2;
+        playerY = LOGICAL_HEIGHT / 2 - PLAYER_SIZE / 2;
+        score = 0;
+        omissionCount = 0;
+        trialRecords = [];
+        lastMoveX = 1.0;
+        lastMoveY = 0.0;
+        isWaitingForNextStar = false;
+        starVisible = false;
+        starX = -100; starY = -100;
+        sessionTimestamp = new Date().toISOString(); 
+
+        gameState = mode; 
+        if (mode === 2) {
+            practiceControls.classList.remove('hidden');
+        } else {
+            practiceControls.classList.add('hidden');
+            startTime = performance.now();
+        }
+
+        triggerNextStarWithISI();
+    }
+
+    function triggerNextStarWithISI() {
+        starVisible = false;
+        starX = -100; starY = -100;
+        currentTrial = null; 
+        
+        let randomISI = Math.floor(Math.random() * 800) + 500; 
+        
+        setTimeout(() => {
+            if (gameState === 1 || gameState === 2) {
+                generateTargetStar();
+                isWaitingForNextStar = false;
+            }
+        }, randomISI);
+    }
+
+    function gameLoop() {
+        if (gameState !== 1 && gameState !== 2) return;
+
+        let now = performance.now();
+        let remainingTime = 0;
+
+        if (gameState === 1) {
+            let elapsed = (now - startTime) / 1000;
+            remainingTime = Math.max(0, Math.ceil(GAME_DURATION - elapsed));
+
+            if (remainingTime <= 0) {
+                calculateClinicalStats();
+                endGame();
+                return;
+            }
+        }
+
+        let currentMoveX = joystickInput.x * MAX_SPEED;
+        let currentMoveY = joystickInput.y * MAX_SPEED;
+        let moveSpeed = Math.sqrt(currentMoveX * currentMoveX + currentMoveY * currentMoveY);
+
+        playerX += currentMoveX;
+        playerY += currentMoveY;
+
+        if (playerX < 0) playerX = 0;
+        if (playerX > LOGICAL_WIDTH - PLAYER_SIZE) playerX = LOGICAL_WIDTH - PLAYER_SIZE;
+        if (playerY < 22) playerY = 22; 
+        if (playerY > LOGICAL_HEIGHT - PLAYER_SIZE) playerY = LOGICAL_HEIGHT - PLAYER_SIZE;
+
+        if (starVisible && !isWaitingForNextStar && currentTrial) {
+            
+            // 【核心修正】檢查 T0 到 T1 是否超過 2 秒 (即 2 秒內受試者完全沒有推動搖桿啟動反應)
+            if (currentTrial.T1 === null && (now - currentTrial.T0) > OMISSION_TIMEOUT_MS) {
+                isWaitingForNextStar = true; 
+                
+                if (gameState === 1) {
+                    omissionCount++;
+                    trialRecords.push({
+                        trialNum: trialRecords.length + 1,
+                        rawT0_ms: Math.round(currentTrial.T0 - startTime),
+                        T0_rel: 0,
+                        T1_rel: "Omission (>2s)",
+                        T2_rel: "N/A",
+                        T3_rel: "N/A",
+                        decisionRT: "N/A",
+                        executionTime: "N/A",
+                        D0: currentTrial.D0,
+                        normSpeed: "N/A",
+                        status: "Omission"
+                    });
+                }
+                
+                triggerNextStarWithISI();
+                requestAnimationFrame(gameLoop);
+                return;
+            }
+
+            // 記錄 T1（玩家首次推動搖桿啟動的時刻）
+            if (currentTrial.T1 === null && moveSpeed > 0.1) {
+                currentTrial.T1 = now;
+            }
+
+            // 記錄 T2（認知決策轉向完成 cosTheta > 0.85）
+            if (currentTrial.T2 === null && moveSpeed > 0.15) {
+                let pCenterX = playerX + PLAYER_SIZE / 2;
+                let pCenterY = playerY + PLAYER_SIZE / 2;
+                let sCenterX = starX + STAR_SIZE / 2;
+                let sCenterY = starY + STAR_SIZE / 2;
+
+                let targetDx = sCenterX - pCenterX;
+                let targetDy = sCenterY - pCenterY;
+                let targetDist = Math.sqrt(targetDx * targetDx + targetDy * targetDy);
+
+                if (targetDist > 0) {
+                    let dotProduct = (currentMoveX * targetDx) + (currentMoveY * targetDy);
+                    let cosTheta = dotProduct / (moveSpeed * targetDist);
+
+                    if (cosTheta > COS_THRESHOLD) {
+                        alignedFrameCount++;
+                        if (alignedFrameCount >= 2) {
+                            currentTrial.T2 = now;
+                            if (currentTrial.T1 === null) currentTrial.T1 = now;
+                        }
+                    } else {
+                        alignedFrameCount = 0; 
+                    }
+                }
+            }
+
+            // 記錄 T3（方塊成功捕捉到星星）
+            if (playerX + 6 < starX + STAR_SIZE &&
+                playerX + PLAYER_SIZE - 6 > starX &&
+                playerY + 6 < starY + STAR_SIZE &&
+                playerY + PLAYER_SIZE - 6 > starY) {
+                
+                currentTrial.T3 = now;
+                if (currentTrial.T1 === null) currentTrial.T1 = now;
+                if (currentTrial.T2 === null) currentTrial.T2 = now;
+
+                let relT0 = 0;
+                let relT1 = Math.max(0, Math.round(currentTrial.T1 - currentTrial.T0));
+                let relT2 = Math.max(relT1, Math.round(currentTrial.T2 - currentTrial.T0));
+                let relT3 = Math.max(relT2, Math.round(currentTrial.T3 - currentTrial.T0));
+
+                let decisionTime = relT2 - relT0; 
+                let executionTime = Math.max(1, relT3 - relT2); 
+                let normSpeed = parseFloat((currentTrial.D0 / (executionTime / 1000)).toFixed(2)); 
+
+                if (decisionTime >= 80) {
+                    score++;
+                    if (gameState === 1) {
+                        trialRecords.push({
+                            trialNum: trialRecords.length + 1,
+                            rawT0_ms: Math.round(currentTrial.T0 - startTime),
+                            T0_rel: relT0,
+                            T1_rel: relT1,
+                            T2_rel: relT2,
+                            T3_rel: relT3,
+                            decisionRT: decisionTime,
+                            executionTime: executionTime,
+                            D0: currentTrial.D0,
+                            normSpeed: normSpeed,
+                            status: "Correct"
+                        });
+                    }
+                }
+
+                if (moveSpeed > 0.1) {
+                    lastMoveX = currentMoveX;
+                    lastMoveY = currentMoveY;
+                }
+                
+                isWaitingForNextStar = true;
+                triggerNextStarWithISI();
+            }
+        }
+
+        render(gameState === 1 ? remainingTime : "练习中");
+        requestAnimationFrame(gameLoop);
+    }
+
+    function calculateClinicalStats() {
+        let correctRecords = trialRecords.filter(tr => tr.status === "Correct");
+        let effectiveRecords = correctRecords.length > 1 ? correctRecords.slice(1) : correctRecords;
+        let n = effectiveRecords.length;
+
+        stats.validCount = n;
+        stats.omissionErrors = omissionCount;
+
+        if (n === 0) return;
+
+        let sumDecision = effectiveRecords.reduce((acc, item) => acc + item.decisionRT, 0);
+        let meanDecision = sumDecision / n;
+        stats.meanDecisionRT = Math.round(meanDecision);
+
+        if (n > 1) {
+            let variance = effectiveRecords.reduce((acc, item) => acc + Math.pow(item.decisionRT - meanDecision, 2), 0) / (n - 1);
+            stats.sdDecisionRT = Math.round(Math.sqrt(variance));
+            stats.cvDecisionRT = parseFloat((stats.sdDecisionRT / meanDecision).toFixed(3));
+        } else {
+            stats.sdDecisionRT = 0;
+            stats.cvDecisionRT = 0;
+        }
+
+        let sumExec = effectiveRecords.reduce((acc, item) => acc + item.executionTime, 0);
+        stats.meanExecTime = Math.round(sumExec / n);
+
+        let sumNormSpeed = effectiveRecords.reduce((acc, item) => acc + item.normSpeed, 0);
+        stats.meanNormSpeed = parseFloat((sumNormSpeed / n).toFixed(2));
+    }
+
+    function render(statusText) {
+        resizeCanvas();
+        LOGICAL_HEIGHT = LOGICAL_WIDTH * (canvas.height / canvas.width);
+
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.save();
+        let scale = canvas.width / LOGICAL_WIDTH;
+        ctx.scale(scale, scale);
+
+        ctx.strokeStyle = isWaitingForNextStar ? "#238636" : "#FFFFFF";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(Math.floor(playerX), Math.floor(playerY), PLAYER_SIZE, PLAYER_SIZE);
+
+        if (starVisible) {
+            ctx.fillStyle = "#FFFFFF";
+            ctx.fillRect(Math.floor(starX), Math.floor(starY), STAR_SIZE, STAR_SIZE);
+        }
+
+        ctx.textBaseline = "alphabetic";
+        ctx.font = "11px monospace";
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillText(`Score:${score}`, 8, 14);
+        ctx.fillText(typeof statusText === 'number' ? `Time:${statusText}s` : `Mode:${statusText}`, LOGICAL_WIDTH - 85, 14);
+        
+        ctx.strokeStyle = "#30363d";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, 18);
+        ctx.lineTo(LOGICAL_WIDTH, 18);
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+    document.getElementById('start-btn').addEventListener('click', () => {
+        userData.age = document.getElementById('age-group').value;
+        userData.gender = document.getElementById('gender').value;
+
+        startScreen.classList.add('hidden');
+        gameScreen.classList.remove('hidden');
+
+        initGame(1); 
+        requestAnimationFrame(gameLoop);
+    });
+
+    document.getElementById('practice-btn').addEventListener('click', () => {
+        userData.age = document.getElementById('age-group').value;
+        userData.gender = document.getElementById('gender').value;
+
+        startScreen.classList.add('hidden');
+        gameScreen.classList.remove('hidden');
+
+        initGame(2); 
+        requestAnimationFrame(gameLoop);
+    });
+
+    document.getElementById('exit-practice-btn').addEventListener('click', () => {
+        gameState = 0;
+        gameScreen.classList.add('hidden');
+        startScreen.classList.remove('hidden');
+    });
+
+    function getRatingLabel(validCount, meanRT) {
+        if (validCount < 3) return "测试数据不足";
+        if (meanRT < 200) return "GOD! (电竞级)";
+        if (meanRT < 400) return "FAST (敏捷)";
+        if (meanRT < 800) return "NORM (正常)";
+        return "SLOW (偏慢)";
+    }
+
+    function getRatingCode(validCount, meanRT) {
+        if (validCount < 3) return "Insufficient_Data";
+        if (meanRT < 200) return "GOD";
+        if (meanRT < 400) return "FAST";
+        if (meanRT < 800) return "NORM";
+        return "SLOW";
+    }
+
+    function endGame() {
+        gameState = 3; 
+        gameScreen.classList.add('hidden');
+        gameoverScreen.classList.remove('hidden');
+
+        document.getElementById('res-score').innerText = score;
+        document.getElementById('res-count').innerText = stats.validCount;
+        document.getElementById('res-omissions').innerText = stats.omissionErrors;
+
+        if (stats.validCount > 0) {
+            document.getElementById('res-reflex').innerText = `${stats.meanDecisionRT} ms`;
+            document.getElementById('res-variability').innerText = `${stats.sdDecisionRT} ms (CV: ${stats.cvDecisionRT})`;
+            document.getElementById('res-exec').innerText = `${stats.meanExecTime} ms (${stats.meanNormSpeed} px/s)`;
+        } else {
+            document.getElementById('res-reflex').innerText = 'N/A';
+            document.getElementById('res-variability').innerText = 'N/A';
+            document.getElementById('res-exec').innerText = 'N/A';
+        }
+
+        let ratingText = getRatingLabel(stats.validCount, stats.meanDecisionRT);
+        document.getElementById('res-rating').innerText = `RATING: ${ratingText}`;
+    }
+
+    document.getElementById('restart-btn').addEventListener('click', () => {
+        gameoverScreen.classList.add('hidden');
+        startScreen.classList.remove('hidden');
+        gameState = 0;
+    });
+
+    document.getElementById('export-btn').addEventListener('click', () => {
+        let ratingCode = getRatingCode(stats.validCount, stats.meanDecisionRT);
+        let meanRTStr = stats.validCount > 0 ? stats.meanDecisionRT : "N/A";
+        let sdRTStr = stats.validCount > 0 ? stats.sdDecisionRT : "N/A";
+        let cvRTStr = stats.validCount > 0 ? stats.cvDecisionRT : "N/A";
+        let execTimeStr = stats.validCount > 0 ? stats.meanExecTime : "N/A";
+        let normSpeedStr = stats.validCount > 0 ? stats.meanNormSpeed : "N/A";
+
+        let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+        
+        csvContent += "=== SESSION SUMMARY (MCI BIOMARKERS) ===\n";
+        csvContent += "Timestamp,Age_Group,Gender,Final_Score,Valid_Trials_Analyzed,Omission_Errors_gt_2s,Mean_Decision_CRT_ms,SD_Decision_RT_ms,CV_Decision_RT,Mean_Execution_Time_ms,Mean_Norm_Speed_px_s,Rating\n";
+        csvContent += `${sessionTimestamp},${userData.age},${userData.gender},${score},${stats.validCount},${stats.omissionErrors},${meanRTStr},${sdRTStr},${cvRTStr},${execTimeStr},${normSpeedStr},${ratingCode}\n\n`;
+
+        csvContent += "=== TRIAL-BY-TRIAL KINEMATICS & TIMESTAMPS ===\n";
+        csvContent += "Trial_No,Session_T0_ms,T0_Baseline_ms,T1_Initiation_ms,T2_Decision_Aligned_ms,T3_Capture_ms,Decision_Phase_T2_T0_ms,Execution_Phase_T3_T2_ms,Initial_Dist_D0_px,Norm_Exec_Speed_px_s,Trial_Status\n";
+        
+        trialRecords.forEach(tr => {
+            csvContent += `${tr.trialNum},${tr.rawT0_ms},${tr.T0_rel},${tr.T1_rel},${tr.T2_rel},${tr.T3_rel},${tr.decisionRT},${tr.executionTime},${tr.D0},${tr.normSpeed},${tr.status}\n`;
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `MCI_CRT_Assessment_${userData.age}_${Date.now()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+</script>
+</body>
+</html>
